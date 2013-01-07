@@ -32,11 +32,10 @@ try:
     import weechat
     from weechat import WEECHAT_RC_OK as W_OK
 except ImportError:
-    raise ImportError("This script has to be run from inside weechat: '/python load /path/to/script/weespeak.py'")
+    raise ImportError("This script has to be run from inside weechat, get it from: http://weechat.org, then run '/python load /path/to/script/weespeak.py' inside weechat.")
 
 try:
     from espeak import espeak
-    weechat.prnt("", "imported espeak OK")
 except ImportError:
     weechat.prnt("", "This script requires python-espeak: https://launchpad.net/python-espeak")
     raise
