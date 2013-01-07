@@ -22,7 +22,7 @@ except ImportError:
     weechat.prnt("", "This script requires python-espeak: https://launchpad.net/python-espeak")
     raise
 
-template = "{who} says {what}"
+syntax = "{who} says {what}"
 ignore = []
 max_message_length = 500
 
