@@ -53,23 +53,21 @@ def speak_out(data, signal, signal_data):
 
     msg = parse_message(data, signal, signal_data)
 
-    W_OK = WEECHAT_RC_OK
-
     # filter out message that would take to long to synthesize by espeak
     if len(msg["message"]) > max_message_length:
-        return WOK
+        return W_OK
 
     # you don't want to hear your own messages
     elif msg["nick"] == own_nick(msg["server"]):
-        return WEECHAT_RC_OK
+        return W_OK
 
     # don't speak out if nick is in ignore list
     elif msg["nick"] in ignore:
-        return WEECHAT_RC_OK
+        return W_OK
 
     # only speak out the current buffer
     elif buffer_current() != buffer(msg["server"], msg["channel"]):
-        return WEECHAT_RC_OK
+        return W_OK
 
     # build sentence
     sentence = syntax.format(who = msg["nick"], what = msg["message"])
@@ -77,7 +75,7 @@ def speak_out(data, signal, signal_data):
     # run it through espeak
     espeak.synth(sentence)
 
-    return WOK
+    return W_OK
 
 # weechat.register(name, author, version, 
 #                  license, description, shutdown_function, charset)
