@@ -26,19 +26,17 @@ SCRIPT_LICENSE = "GPL2"
 SCRIPT_DESC    = "Outputs messages in current irc-buffer through espeak."
 SCRIPT_COMMAND = "weespeak"
 
-import sys
-
 try:
     import weechat
     from weechat import WEECHAT_RC_OK as W_OK
 except ImportError:
-    raise ImportError("This script has to be run from inside weechat, get it from: http://weechat.org, then run '/python load /path/to/script/weespeak.py' inside weechat.")
+    raise ImportError("Load this script from inside weechat (http://weechat.org)."
+                      "Run '/python load /path/to/script/weespeak.py' from weechat.")
 
 try:
     from espeak import espeak
 except ImportError:
-    weechat.prnt("", "This script requires python-espeak: https://launchpad.net/python-espeak")
-    raise
+    raise ImportError("This script requires python-espeak: https://launchpad.net/python-espeak")
 
 syntax = "{who} says {what}"
 ignore = []
@@ -66,6 +64,30 @@ def parse_message(data, signal, signal_data):
     # strip channel-name from arguments and then the leading colon
     hm["message"] = hm["arguments"].lstrip(hm["channel"]).lstrip()[1:]
     return hm
+
+def mute(nicks):
+    if nicks:
+        [ignore.append(nick) for nick in nicks if nick not in ignore]
+
+def unmute(nicks):
+    if nicks:
+        [ignore.remove(nick) for nick in nicks if nick in ignore]
+
+def cmd(rc, from_buffer, arg):
+    
+    arguments = arg.split()
+
+    if arguments[0] == "mute":
+        mute( arguments[1:] )
+    elif arguments[0] == "unmute":
+        unmute( arguments[1:] )
+    elif arguments[0] == "list_muted":
+        weechat.prnt("", "muted nicks: {}".format(" ".join(ignore)))
+    else:
+        weechat.prnt("", "unknown command: '{}'".format(arguments[0]))
+        return weechat.WEECHAT_RC_ERROR
+ 
+    return W_OK
 
 def speak_out(data, signal, signal_data):
 
@@ -103,9 +125,24 @@ weechat.register(SCRIPT_NAME,
                  SCRIPT_LICENSE,
                  SCRIPT_DESC, "", "")
 
-# hook into weechat:
-
 # run speak_out() AFTER the message got processed => irc_in2_privmsg;
 # run BEFORE => irc_in_privmsg
 weechat.hook_signal("*,irc_in2_privmsg", "speak_out", "")
 
+weechat.hook_command("weespeak",
+                     "adjust the weespeak configuration",
+                     "[mute | unmute] [nick(s)] | [list_muted]", # example syntax
+                     "list_muted: prints out nicks that are ignored by weespeak\n"
+                     "mute      : puts a nick / list of nicks on ignore\n"
+                     "unmute    : removes a nick / list of nicks from ignore\n\n"
+                     " Example:\n"
+                     "  /weespeak mute elvis\n"
+                     "   puts the nick 'elvis' on the ignore list\n\n"
+                     "  /weespeak unmute elvis phrik\n"
+                     "   removes the nicks 'elvis' and 'phrik' from the ignore list\n\n"
+                     "  /weespeak list_muted\n"
+                     "   prints the muted nicks to the core-buffer\n", # desc of args
+                     " || mute %(nicks)"
+                     " || unmute %(nicks)"
+                     " || list_muted",
+                     "cmd", "")
