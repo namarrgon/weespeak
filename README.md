@@ -1,7 +1,6 @@
 # weespeak - espeak in weechat
 
 weespeak will output the incoming messages on the current channel-buffer through espeak.
-It allows you to mute/unmute nicks to prevent 
 
 ## Source
 
