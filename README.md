@@ -10,7 +10,7 @@ weespeak will output the incoming messages on the current channel-buffer through
 
 ## Dependencies
 
-* weespeak http://weechat.org/
+* weechat http://weechat.org/
 * python-espeak https://launchpad.net/python-espeak
 
 ## Usage:
